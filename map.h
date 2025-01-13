@@ -3,8 +3,11 @@
 
 typedef enum TileType
 {
-	TILE_WALL,
 	TILE_FLOOR,
+	TILE_WALL,
+	TILE_ROOM_FLOOR,
+	TILE_ROOM_WALL,
+	TILE_DOOR,
 	TILE_COUNT
 } TileType;
 
@@ -22,8 +25,9 @@ typedef struct bsp_t
 	struct bsp_t *right;
 } bsp_t;
 
-void bsp_split(bsp_t *cur);
-void bsp_carveout(tile_t *til, int width, int height, bsp_t *bsp);
+struct map_t;
+int bsp_split(bsp_t *cur, struct map_t *m);
+void bsp_clearout(struct map_t *m);
 
 typedef struct map_t
 {
@@ -32,6 +36,8 @@ typedef struct map_t
 	tile_t *tiles;
 
 	bsp_t *bsp;
+	Rectangle *rooms;
+	int rooms_count;
 } map_t;
 
 map_t map_create(int width, int height);

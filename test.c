@@ -32,32 +32,31 @@ void test2_map_generation(res_t *resources, map_t *m)
 		float cw = 1. * GetScreenWidth() / m->width;
 		float ch = 1. * GetScreenHeight() / m->height;
 
-		Rectangle dest = {0, 0, cw,ch};
+		Rectangle dest = {0, 0, ch,ch};
 
 		for(int i = 0; i < m->height; i++)
 		{
 			for(int j = 0; j < m->width; j++)
 			{
 				tile_t t = m->tiles[m->width * i + j];
-				Rectangle src = {0};
+
+				Color col = BLACK;
 
 				switch(t.type)
 				{
-					case TILE_WALL:
-						src = anim_get_frame(&(resources->source[RES_TOP_WALL]), 0, 0);
-						break;
-
-					case TILE_FLOOR:
-						src = anim_get_frame(&(resources->source[RES_TOP_FLOOR]), 0, 0);
-						break;
-
+					case TILE_WALL: col = BROWN; break;
+					case TILE_FLOOR: col = GOLD; break;
+					case TILE_ROOM_FLOOR: col = WHITE; break;
+					case TILE_ROOM_WALL: col = BLUE; break;
+					case TILE_DOOR: col = PINK; break;
 					default:
 						// do nothin
 				}
 
-				DrawTexturePro(resources->atlas, src, dest, Vector2Zero(), 0, WHITE);
+				DrawRectangleRec(dest, col);
+				DrawRectangleLinesEx(dest, 1, GRAY);
 
-				dest.x += cw;
+				dest.x += ch;
 			}
 
 			dest.x = 0;
@@ -75,17 +74,12 @@ static void bsp_draw(bsp_t *b, map_t *m, int depth)
 	float cw = 1. * GetScreenWidth() / m->width;
 	float ch = 1. * GetScreenHeight() / m->height;
 
-	r.x = b->rect.x * cw;
+	r.x = b->rect.x * ch;
 	r.y = b->rect.y * ch;
-	r.width = b->rect.width * cw;
+	r.width = b->rect.width * ch;
 	r.height = b->rect.height * ch;
 
-	static Color cols[] = {
-		RED, MAROON, ORANGE, PURPLE, BLUE, GREEN, LIME, YELLOW, GOLD
-	};
-	static int size = sizeof(cols)/sizeof(Color);
-
-	DrawRectangleLinesEx(r, 3, cols[depth % size]);
+	DrawRectangleLinesEx(r, 1, RED);
 
 	bsp_draw(b->left, m, depth + 1);
 	bsp_draw(b->right, m, depth + 1);
@@ -95,4 +89,18 @@ void test2_map_bsp(map_t *m)
 {
 	bsp_t *b = m->bsp;
 	bsp_draw(b, m, 0);
+
+	float ch = 1. * GetScreenHeight() / m->height;
+
+	for(int i = 0; i < m->rooms_count; i++)
+	{
+		Rectangle r = m->rooms[i];
+
+		r.x *= ch;
+		r.y *= ch;
+		r.width *= ch;
+		r.height *= ch;
+
+		DrawRectangleLinesEx(r, 1, SKYBLUE);
+	}
 }
