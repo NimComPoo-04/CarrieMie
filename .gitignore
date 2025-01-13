@@ -1,0 +1,4 @@
+libs
+assets
+*.o
+*.exe

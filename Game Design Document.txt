@@ -1,0 +1,56 @@
+Game Design Document.
+
+Name: CarrieMie
+
+Overview:
+CarrieMie is a strategy dugeon game with FPS aspects. The protagonist Carrie Mie is carried by her robot
+companion. The robot does not have the ability to look around rather it maps out the dugeon using sensing
+technology. It has a 2d map view of the world. Carrie Mie can instruct the robot to move in certain ways.
+Carrie Mie herself can't move but can doge bullets by jumping a little bit to the sides. She has a gun
+and can shoot down enemies which try to attack her. Ultimate goal is to disable all security systems and
+exit the premesis.
+
+Robot Perspective:
+1. The robot has a map view of the world.
+2. It can detect tiles on the ground which are trapped and can kill her companion.
+3. She can hack into terminals to disable the security systems.
+
+Human Perspective:
+1. Human has a gun and can shoot down enemies.
+2. Human needs to be carried by her friend.
+3. Human can be dropped by the robot in strategic locations to aid the process.
+4. Humans collect keys card to activate doors.
+
+We Play through the perspective of the human. We can program the robot using our tablet. which also gives
+us information on our health.
+
+Enemies:
+1. Hostile Robots move like our friendly robot and can scan rooms in the same fasion. they can not detect other
+	robots but can find any biological matter like ourselves.
+2. Some robots can shoot projectiles.
+3. These robots have three states:
+ 	a. designated walking mode where the robots move around in predefined path.
+ 	b. raise alarm is when the robot notices biological matter and tries
+ 		raise alarm by going the alarm initiation station.
+ 	c. sleep, when robots return to their nearest docking station.
+ 	d. alarm, all robots target the current known location of the person.
+
+Map:
+Each map is of sizes 20x20 30x30 50x50 tiles.
+Types of tiles in the map:
+	1. indestructable wall tiles. these tiles can not be blow up or compromized in anyway
+	2. destructable wall tiles these tiles can be destroy by using bombs.
+	3. floor tiles just basic floor tiles
+	4. docking floor tiles. this is a docking station and is a place where the robot spawn in
+		or come to raise alarm.
+	5. shrubury tile. it is a tile where the human can be dropped by the robot to avoid detection
+		or hide during alarm. unless a robot passes through 4 sides of the tiles then the human is
+		detected.
+	6. terminal tile. is the tile where the robot must come to disable security.
+	7. Exit tiles, these are the tiles where the player must come to physically exit the game.
+	
+each map will have different items. it will have atleast 1 keycard and a few terminals.
+each terminal will trigger a minigame stopping the main game. the minigame will be basically traversing the
+mouse through a maze.
+
+Map generation will be through a dungeon creation process
