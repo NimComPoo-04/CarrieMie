@@ -17,7 +17,7 @@ int main(void)
 
 	res_t *resources = res_load();
 
-	map_t map = map_create(50, 50);
+	map_t map = map_create(40, 40);
 
 	while(!WindowShouldClose())
 	{
@@ -26,6 +26,7 @@ int main(void)
 		//test1_texture_rendering(resources);
 		test2_map_generation(resources, &map);
 		//test2_map_bsp(&map);
+		//test2_map_rect(&map);
 
 		EndDrawing();
 	}

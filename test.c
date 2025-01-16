@@ -64,6 +64,26 @@ void test2_map_generation(res_t *resources, map_t *m)
 		}
 }
 
+void test2_map_rect(map_t *m)
+{
+	float ch = 1. * GetScreenHeight() / m->height;
+	for(int i = 0; i < m->rooms_count; i++)
+	{
+		Rectangle r = m->rooms[i];
+		r.x *= ch; r.width *= ch;
+		r.y *= ch; r.height *= ch;
+
+		if(i == 0)
+			DrawRectangleRec(r, RED);
+		else if(i == 1)
+			DrawRectangleRec(r, GREEN);
+		else if(i < m->rooms_count * 2/3)
+			DrawRectangleRec(r, YELLOW);
+		else
+			DrawRectangleRec(r, BLUE);
+	}
+}
+
 static void bsp_draw(bsp_t *b, map_t *m, int depth)
 {
 	if(!b)

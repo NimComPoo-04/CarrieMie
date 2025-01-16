@@ -3,11 +3,17 @@
 
 typedef enum TileType
 {
+	TILE_NONE,
 	TILE_FLOOR,
 	TILE_WALL,
 	TILE_ROOM_FLOOR,
 	TILE_ROOM_WALL,
 	TILE_DOOR,
+	TILE_ENTRY,
+	TILE_EXIT,
+	TILE_SPAWNER,
+	TILE_TERMINAL,
+	TILE_ARMORY,		// A aromory tile, recharges the gun of human
 	TILE_COUNT
 } TileType;
 
@@ -15,7 +21,6 @@ typedef struct tile_t
 {
 	TileType type;
 } tile_t;
-
 
 // Rectangular bsp tree to simplyfy things lol
 typedef struct bsp_t
