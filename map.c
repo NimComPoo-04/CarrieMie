@@ -86,49 +86,53 @@ int bsp_split(bsp_t *cur, map_t *m)
 	return split;
 }
 
-Vector2 gen_door(Rectangle r, int wall, Vector2 *v)
+Vector2 gen_door(map_t *m, Rectangle r, int wall, Vector2 *v)
 {
-	float t = GetRandomValue(0, 100)/100.;
-
 	Vector2 door = {0};
-	switch(wall)
+	do
 	{
-		case 0:
-			door.y = r.y;
-			door.x = (r.x + 1) * t + (r.x + r.width - 2) * (1 - t);
+		float t = GetRandomValue(0, 100)/100.;
 
-			v->y = door.y - 1;
-			v->x = door.x;
+		switch(wall)
+		{
+			case 0:
+				door.y = r.y;
+				door.x = (r.x + 1) * t + (r.x + r.width - 2) * (1 - t);
 
-			break;
+				v->y = door.y - 1;
+				v->x = door.x;
 
-		case 1:
-			door.y = r.y + r.height - 1;
-			door.x = (r.x + 1) * t + (r.x + r.width - 2) * (1 - t);
+				break;
 
-			v->y = door.y + 1;
-			v->x = door.x;
+			case 1:
+				door.y = r.y + r.height - 1;
+				door.x = (r.x + 1) * t + (r.x + r.width - 2) * (1 - t);
 
-			break;
+				v->y = door.y + 1;
+				v->x = door.x;
 
-		case 2:
-			door.x = r.x;
-			door.y = (r.y + 1) * t + (r.y + r.height - 2) * (1 - t);
+				break;
 
-			v->y = door.y;
-			v->x = door.x - 1;
+			case 2:
+				door.x = r.x;
+				door.y = (r.y + 1) * t + (r.y + r.height - 2) * (1 - t);
 
-			break;
+				v->y = door.y;
+				v->x = door.x - 1;
 
-		case 3:
-			door.x = r.x + r.width - 1;
-			door.y = (r.y + 1) * t + (r.y + r.height - 2) * (1 - t);
+				break;
 
-			v->y = door.y;
-			v->x = door.x + 1;
+			case 3:
+				door.x = r.x + r.width - 1;
+				door.y = (r.y + 1) * t + (r.y + r.height - 2) * (1 - t);
 
-			break;
+				v->y = door.y;
+				v->x = door.x + 1;
+
+				break;
+		}
 	}
+	while(m->tiles[(int)(v->y * m->width + v->x)].type != TILE_FLOOR);
 
 	return door;
 }
@@ -304,7 +308,7 @@ void bsp_clearout(map_t *m)
 		{
 			Rectangle r = m->rooms[i];
 			Vector2 where = {0};
-			Vector2 door = gen_door(r, k, &where);
+			Vector2 door = gen_door(m, r, k, &where);
 
 			m->tiles[(int)door.y * m->width + (int)door.x].type = TILE_DOOR;
 		}
