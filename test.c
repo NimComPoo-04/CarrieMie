@@ -1,11 +1,4 @@
-#include <raylib.h>
-#include <raymath.h>
-
-#include "res.h"
-#include "anim.h"
-#include "map.h"
-
-#include "util.h"
+#include "test.h"
 
 void test1_texture_rendering(res_t *resources)
 {
@@ -123,4 +116,174 @@ void test2_map_bsp(map_t *m)
 
 		DrawRectangleLinesEx(r, 1, SKYBLUE);
 	}
+}
+
+void test3_player_and_test(player_t *p, map_t *m, res_t *resources)
+{
+	float ch = 1. * GetScreenHeight() / m->height;
+
+	test2_map_generation(resources, m);
+	Vector2 k = Vector2Scale(p->pos, ch);
+
+	Vector2 vel = {0};
+	vel.x = cos(p->look) * p->vel.x * p->size * ch;
+	vel.y = sin(p->look) * p->vel.y * p->size * ch;
+
+	player_update(p, m);
+	DrawCircleV(k, p->size * ch, SKYBLUE);
+	DrawLineV(k, Vector2Add(k, vel), MAGENTA);
+	render_player_view(p, m);
+}
+
+void test4_player2d_and_3d(player_t *p, map_t *m, res_t *resources)
+{
+	ClearBackground(DARKBLUE);
+
+	float ch = 1. * GetScreenWidth() / m->width / 2;
+
+	Rectangle dest = {0, 0, ch,ch};
+
+	for(int i = 0; i < m->height; i++)
+	{
+		for(int j = 0; j < m->width; j++)
+		{
+			tile_t t = m->tiles[m->width * i + j];
+
+			Color col = BLACK;
+
+			switch(t.type)
+			{
+				case TILE_WALL: col = BROWN; break;
+				case TILE_FLOOR: col = GOLD; break;
+				case TILE_ROOM_FLOOR: col = WHITE; break;
+				case TILE_ROOM_WALL: col = BLUE; break;
+				case TILE_DOOR: col = PINK; break;
+				default:
+						// do nothin
+			}
+
+			DrawRectangleRec(dest, col);
+			DrawRectangleLinesEx(dest, 1, GRAY);
+
+			dest.x += ch;
+		}
+
+		dest.x = 0;
+		dest.y += ch;
+	}
+
+	Vector2 k = Vector2Scale(p->pos, ch);
+	player_update(p, m);
+	DrawCircleV(k, p->size * ch, SKYBLUE);
+
+	int width = GetScreenWidth()/2;
+	float l = p->look > PI ? p->look - 2 * PI : p->look;
+
+	int wid = 1;
+
+	ray_hit_t rayhits[width / wid];
+	int rayhitcounts = 0;
+
+	for(int i = 0; i < width; i += wid)
+	{
+		float angle = atan2(i - width/2, width / 2) + l;
+
+		ray_hit_t r = ray_project(m, p->pos, angle);
+
+		Vector2 v1 = Vector2Scale(p->pos, ch);
+		Vector2 v2 = Vector2Scale(r.hitpos, ch);
+
+		DrawLineV(v1, v2, RED);
+
+		rayhits[rayhitcounts++] = r;
+	}
+
+
+	// Draw 3d now
+	int height = GetScreenHeight();
+	
+	// Drawing floor and celing
+	DrawRectangle(width, 0, width, height/2, SKYBLUE);
+	DrawRectangle(width, height/2, width, height/2, GREEN);
+
+	float wall_height = height;
+
+	Rectangle wall = anim_get_frame(&resources->source[RES_TOP_WALL], 0, 0);
+	Rectangle room_wall = anim_get_frame(&resources->source[RES_TOP_FLOOR], 0, 0);
+
+	for(int i = 0; i < rayhitcounts; i++)
+	{
+		ray_hit_t r = rayhits[i];
+
+		float hei = wall_height / (r.dist * cos(r.angle - p->look));
+
+		Rectangle rec = {i * wid + width, height / 2 - hei / 2, wid, hei};
+
+		Color col = {0, 0, 0, 0};
+		Rectangle src = {0};
+
+		switch(r.hittile.type)
+		{
+			case TILE_WALL:      src = wall; col = BROWN; break;
+			case TILE_ROOM_WALL: src = room_wall; col = BLUE; break;
+			default: // do nothin
+		}
+
+		src.x += src.width * r.intrp - 0.5;
+		src.width = 1;
+
+		DrawTexturePro(resources->atlas, src, rec, Vector2Zero(), 0, col);	
+//		DrawRectangleRec(rec, ColorLerp(col, BLACK, r.intrp));
+	}
+}
+
+void test4_player_3d(player_t *p, map_t *m, res_t *resources)
+{
+	// First get a list of all the quads that do require rendering, for now thats all i presume lol
+
+	Camera3D cam = {
+		{p->pos.x, 0, p->pos.y},
+		{
+			p->pos.x + cos(p->look),
+			0,
+			p->pos.y + sin(p->look)
+		},
+		{0, 1, 0},
+		45,
+		CAMERA_PERSPECTIVE
+	};
+
+	BeginMode3D(cam);
+
+	ClearBackground(BLACK);
+
+	for(int i = 0; i < m->height; i++)
+	{
+		for(int j = 0; j < m->width; j++)
+		{
+			tile_t t = m->tiles[m->width * i + j];
+
+			Color col = BLACK;
+
+			Vector3 pos = { j + 0.5, 0, i + 0.5};
+			Vector3 pln = { j + 0.5, -0.5, i + 0.5};
+
+			switch(t.type)
+			{
+				case TILE_FLOOR:      DrawPlane(pln, (Vector2){1, 1}, GOLD); break;
+				case TILE_ROOM_FLOOR: DrawPlane(pln, (Vector2){1, 1}, WHITE); break;
+
+				case TILE_WALL:      DrawCube(pos, 1, 1, 1, BROWN); break;
+				case TILE_ROOM_WALL: DrawCube(pos, 1, 1, 1, BLUE); break;
+				case TILE_DOOR:      DrawCube(pos, 1, 1, 1, PINK); break;
+
+				default:
+						      // do nothin
+			}
+		}
+	}
+
+	EndMode3D();
+
+	player_update(p, m);
 }

@@ -48,4 +48,7 @@ typedef struct map_t
 map_t map_create(int width, int height);
 void map_destroy(map_t *m);
 
+tile_t set_tile(map_t *m, int x, int y, tile_t a);
+tile_t get_tile(map_t *m, int x, int y);
+
 #endif

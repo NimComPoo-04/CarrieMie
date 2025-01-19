@@ -6,14 +6,14 @@
 
 int bsp_split(bsp_t *cur, map_t *m)
 {
+	int split = 0;
 	// If the room is too small just don't do anything, or just randomly discard
-	if(cur->rect.width * cur->rect.height < 200)
+	if(cur->rect.width * cur->rect.height < 150)
 	{
 		cur->left = 0;
 		cur->right = 0;
 
-		// Discard 60 % of all rooms
-		if(GetRandomValue(0, 100) < 45)
+		if(GetRandomValue(0, 100) < 60)
 			return 0;
 
 		if(m->rooms_count % 16 == 0)
@@ -31,57 +31,57 @@ int bsp_split(bsp_t *cur, map_t *m)
 
 		return 1;
 	}
-
-	bsp_t *lhs_bsp = MemAlloc(sizeof(bsp_t));
-	bsp_t *rhs_bsp = MemAlloc(sizeof(bsp_t));
-
-	Rectangle lhs, rhs;
-
-	float t = GetRandomValue(40, 60)/100.;
-
-	if(cur->rect.width > cur->rect.height)
-	{
-		// split horiz
-		int lwid = cur->rect.width * t;
-		int rwid = cur->rect.width - lwid;
-
-		lhs.x = cur->rect.x;
-		lhs.y = cur->rect.y;
-		lhs.width = lwid;
-		lhs.height = cur->rect.height;
-
-		rhs.x = cur->rect.x + lwid;
-		rhs.y = cur->rect.y;
-		rhs.width = rwid;
-		rhs.height = cur->rect.height;
-	}
 	else
 	{
-		// split vertical
-		int lhei = cur->rect.height * t;
-		int rhei = cur->rect.height - lhei;
+		bsp_t *lhs_bsp = MemAlloc(sizeof(bsp_t));
+		bsp_t *rhs_bsp = MemAlloc(sizeof(bsp_t));
 
-		lhs.x = cur->rect.x;
-		lhs.y = cur->rect.y;
-		lhs.width = cur->rect.width;
-		lhs.height = lhei;
+		Rectangle lhs, rhs;
 
-		rhs.x = cur->rect.x;
-		rhs.y = cur->rect.y + lhei;
-		rhs.width = cur->rect.width;
-		rhs.height = rhei;
+		float t = GetRandomValue(40, 60)/100.;
+
+		if(cur->rect.width > cur->rect.height)
+		{
+			// split horiz
+			int lwid = cur->rect.width * t;
+			int rwid = cur->rect.width - lwid;
+
+			lhs.x = cur->rect.x;
+			lhs.y = cur->rect.y;
+			lhs.width = lwid;
+			lhs.height = cur->rect.height;
+
+			rhs.x = cur->rect.x + lwid;
+			rhs.y = cur->rect.y;
+			rhs.width = rwid;
+			rhs.height = cur->rect.height;
+		}
+		else
+		{
+			// split vertical
+			int lhei = cur->rect.height * t;
+			int rhei = cur->rect.height - lhei;
+
+			lhs.x = cur->rect.x;
+			lhs.y = cur->rect.y;
+			lhs.width = cur->rect.width;
+			lhs.height = lhei;
+
+			rhs.x = cur->rect.x;
+			rhs.y = cur->rect.y + lhei;
+			rhs.width = cur->rect.width;
+			rhs.height = rhei;
+		}
+
+		lhs_bsp->rect = lhs;
+		rhs_bsp->rect = rhs;
+
+		cur->left = lhs_bsp;
+		cur->right = rhs_bsp;
+
+		split += bsp_split(lhs_bsp, m);
+		split += bsp_split(rhs_bsp, m);
 	}
-
-	lhs_bsp->rect = lhs;
-	rhs_bsp->rect = rhs;
-
-	cur->left = lhs_bsp;
-	cur->right = rhs_bsp;
-
-	int split = 0;
-
-	split += bsp_split(lhs_bsp, m);
-	split += bsp_split(rhs_bsp, m);
 
 	return split;
 }
@@ -137,7 +137,7 @@ Vector2 gen_door(map_t *m, Rectangle r, int wall, Vector2 *v)
 	return door;
 }
 
-static tile_t get_tile(map_t *m, int x, int y)
+tile_t get_tile(map_t *m, int x, int y)
 {
 	if(x < 0 || x >= m->width) return (tile_t){.type = TILE_COUNT};
 	if(y < 0 || y >= m->height) return (tile_t){.type = TILE_COUNT};
@@ -145,7 +145,7 @@ static tile_t get_tile(map_t *m, int x, int y)
 	return m->tiles[y * m->width + x];
 }
 
-static tile_t set_tile(map_t *m, int x, int y, tile_t a)
+tile_t set_tile(map_t *m, int x, int y, tile_t a)
 {
 	tile_t t = {0};
 
@@ -225,7 +225,7 @@ static void depth_first_search(map_t *m)
 		};
 		static int deezlen = sizeof(deez)/sizeof(deez[0]);
 
-		if(steps % GetRandomValue(10, 25) == 0)
+		if(steps % GetRandomValue(5, 10) == 0)
 		{
 			for(int i = 0; i < deezlen; i++)
 			{
@@ -259,11 +259,6 @@ void bsp_clearout(map_t *m)
 {
 	for(int i = 0; i < m->width * m->height; i++)
 		m->tiles[i].type = TILE_NONE;
-
-	/*
-	drunkyards_walk(m->tiles, m->width, m->height, m->width/2, m->height/2,
-			m->width * m->height * 5, TILE_COUNT);
-			*/
 
 	for(int i = 0; i < m->rooms_count; i++)
 	{
@@ -300,9 +295,7 @@ void bsp_clearout(map_t *m)
 		int t = 0;
 
 		if(v < 50) t = 1;
-		else if(v < 70) t = 2;
-		else if(v < 90) t = 3;
-		else if(v < 100) t = 4;
+		else t = 2;
 
 		for(int k = 0; k < t; k++)
 		{
