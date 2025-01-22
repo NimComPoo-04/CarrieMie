@@ -2,19 +2,8 @@
 #include "map.h"
 #include "player.h"
 
-int issolid(int a)
-{
-	switch(a)
-	{
-		case TILE_FLOOR:
-		case TILE_ROOM_FLOOR:
-		case TILE_DOOR:
-			return 0;
-		default:
-			return 1;
-	}
-}
-
+// FIXME: consolidate this function
+int issolid(int a);
 ray_hit_t ray_project(map_t *m, Vector2 pos, float a)
 {
 	ray_hit_t r = {0};

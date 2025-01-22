@@ -287,3 +287,57 @@ void test4_player_3d(player_t *p, map_t *m, res_t *resources)
 
 	player_update(p, m);
 }
+
+void test5_pathfinder(player_t *p, path_t *path, res_t *resources)
+{
+	map_t *m = path->map;
+
+	int sx = 1;
+	int sy = 1;
+	int ex = 1;
+	int ey = m->height - 2;
+
+	path_compute(path, sx, sy, ex, ey);
+
+	test2_map_generation(resources, m);
+
+	float cw = 1. * GetScreenWidth() / m->width;
+	float ch = 1. * GetScreenHeight() / m->height;
+
+	Rectangle dest = {0, 0, ch,ch};
+
+	for(int i = 0; i < m->height; i++)
+	{
+		for(int j = 0; j < m->width; j++)
+		{
+			int t = path->cells[m->width * i + j].py;
+			if(t >= 0)
+			{
+				Color col = DARKGRAY;
+
+				DrawRectangleRec(dest, col);
+				DrawRectangleLinesEx(dest, 1, GRAY);
+			}
+
+			dest.x += ch;
+		}
+
+		dest.x = 0;
+		dest.y += ch;
+	}
+
+	while((ex != sx || ey != sy) && (ex >= 0))
+	{
+		Rectangle rec = {ex * ch, ey * ch, ch, ch};
+		DrawRectangleRec(rec, PURPLE);
+
+		int nx = path->cells[m->width * ey + ex].px;
+		int ny = path->cells[m->width * ey + ex].py;
+
+		ex = nx;
+		ey = ny;
+	}
+
+	Rectangle rec = {ex * ch, ey * ch, ch, ch};
+	DrawRectangleRec(rec, PURPLE);
+}

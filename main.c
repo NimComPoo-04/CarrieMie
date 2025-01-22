@@ -5,9 +5,10 @@
 #include "anim.h"
 #include "map.h"
 #include "player.h"
-
+#include "pathfinder.h"
 #include "test.h"
 
+struct cell_t queue_delete(queue_t *q);
 int main(void)
 {
 	InitWindow(0, 0, "...");
@@ -25,7 +26,11 @@ int main(void)
 		.eye = 0.1,
 		.size = 0.5
 	};
-  
+
+	path_t path = { &map, {0}, 0};
+
+	path_create(&path);
+ 
 	int which = 5;
 
 	while(!WindowShouldClose())
@@ -33,7 +38,7 @@ int main(void)
 		BeginDrawing();
 
 		if(IsKeyPressed(KEY_TAB))
-			which = (which + 1) % 7;
+			which = (which + 1) % 8;
 
 		switch(which)
 		{
@@ -44,6 +49,7 @@ int main(void)
 			case 4: test3_player_and_test(&plr, &map, resources); break;
 			case 5: test4_player2d_and_3d(&plr, &map, resources); break;
 			case 6: test4_player_3d(&plr, &map, resources); break;
+			case 7: test5_pathfinder(&plr, &path, resources); break;
 		}
 
 
@@ -53,6 +59,8 @@ int main(void)
 	map_destroy(&map);
 	res_unload(resources);
 	CloseWindow();
+
+	path_destroy(&path);
 
 	return 0;
 }

@@ -2,7 +2,7 @@
 #include "util.h"
 #include "ray.h"
 
-static int issolid(int a)
+int issolid(int a)
 {
 	switch(a)
 	{
