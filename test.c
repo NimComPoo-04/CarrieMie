@@ -294,7 +294,7 @@ void test5_pathfinder(player_t *p, path_t *path, res_t *resources)
 
 	int sx = 1;
 	int sy = 1;
-	int ex = 1;
+	int ex = m->width - 2;
 	int ey = m->height - 2;
 
 	path_compute(path, sx, sy, ex, ey);

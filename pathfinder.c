@@ -7,7 +7,7 @@ void heap_recover(queue_t *q, int indx)
 
 	int parent = (indx-1)/2;
 
-	if(q->cells[indx].prio < q->cells[parent].prio)
+	if(q->cells[indx].prio <= q->cells[parent].prio)
 	{
 		struct cell_t k = q->cells[indx];
 		q->cells[indx] = q->cells[parent];
@@ -29,7 +29,7 @@ void heap_extract(queue_t *q, int parent)
 	{
 		int which = q->cells[sib1].prio < q->cells[sib2].prio ? sib1 : sib2;
 
-		if(q->cells[which].prio < q->cells[parent].prio)
+		if(q->cells[which].prio <= q->cells[parent].prio)
 		{
 			struct cell_t k = q->cells[parent];
 			q->cells[parent] = q->cells[which];
@@ -38,7 +38,7 @@ void heap_extract(queue_t *q, int parent)
 			heap_extract(q, which);
 		}
 	}
-	else if(sib1 < q->len && q->cells[sib1].prio < q->cells[parent].prio)
+	else if(sib1 < q->len && q->cells[sib1].prio <= q->cells[parent].prio)
 	{
 		struct cell_t k = q->cells[parent];
 		q->cells[parent] = q->cells[sib1];
@@ -46,7 +46,7 @@ void heap_extract(queue_t *q, int parent)
 
 		heap_extract(q, sib1);
 	}
-	else if(sib2 < q->len && q->cells[sib2].prio < q->cells[parent].prio)
+	else if(sib2 < q->len && q->cells[sib2].prio <= q->cells[parent].prio)
 	{
 		struct cell_t k = q->cells[parent];
 		q->cells[parent] = q->cells[sib2];
@@ -115,16 +115,17 @@ int path_compute(path_t *p, int sx, int sy, int ex, int ey)
 	p->queue.len = 0;
 
 	int depth = 0;
-	int huristic = (ex - sx) + (ey + sy);
+	int huristic = (ex - sx)*(ex - sx) + (ey - sy)*(ex - sx);
 
 	// lets do greedy bfs first then we can do a*
-	queue_insert(&p->queue, sx, sy, depth);
+	queue_insert(&p->queue, sx, sy, huristic);
 
 	while(p->queue.len)
 	{
 		struct cell_t c = queue_delete(&p->queue);
 		if(c.x == ex && c.y == ey)
 			return 1;
+		depth++;
 
 		for(int i = -1; i <= 1; i++)
 		{
@@ -141,9 +142,8 @@ int path_compute(path_t *p, int sx, int sy, int ex, int ey)
 				p->cells[indx].px = c.x; 
 				p->cells[indx].py = c.y; 
 
-				int huristic = (ex - c.x - i ) + (ey - c.y);
-				queue_insert(&p->queue, c.x + i, c.y, depth);
-				depth++;
+				int huristic = (ex - c.x - i) * (ex - c.x - i ) + (ey - c.y) * (ey - c.y);
+				queue_insert(&p->queue, c.x + i, c.y, huristic);
 			}
 		}
 
@@ -162,9 +162,8 @@ int path_compute(path_t *p, int sx, int sy, int ex, int ey)
 				p->cells[indx].px = c.x; 
 				p->cells[indx].py = c.y; 
 
-				int huristic = (ex - c.x) + (ey - c.y - j);
-				queue_insert(&p->queue, c.x, c.y + j, depth);
-				depth++;
+				int huristic = (ex - c.x) * (ex - c.x) + (ey - c.y - j) * (ey - c.y - j);
+				queue_insert(&p->queue, c.x, c.y + j, huristic);
 			}
 		}
 	}

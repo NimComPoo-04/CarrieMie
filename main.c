@@ -30,7 +30,13 @@ int main(void)
 	path_t path = { &map, {0}, 0};
 
 	path_create(&path);
- 
+
+	for(int i = 0; i < 10; i++)
+		queue_insert(&path.queue, i, 0, 0);
+	queue_dump(&path.queue);
+	for(int i = 0; i < 10; i++)
+		TraceLog(LOG_INFO, "%d", queue_delete(&path.queue).x);
+  
 	int which = 5;
 
 	while(!WindowShouldClose())
